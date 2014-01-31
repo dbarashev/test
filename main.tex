@@ -1,4 +1,230 @@
-\documentclass{article}
+\documentclass[final,t]{beamer}
+\mode<presentation>
+{
+ % \usetheme{Warsaw}
+%  \usetheme{Aachen}
+%  \usetheme{Oldi6}
+%  \usetheme{I6td}
+%  \usetheme{I6dv}
+%  \usetheme{I6pd}
+}
+% additional settings
+\setbeamerfont{itemize}{size=\normalsize}
+\setbeamerfont{itemize/enumerate body}{size=\normalsize}
+\setbeamerfont{itemize/enumerate subbody}{size=\normalsize}
+
+% additional packages
+% \usepackage{times}
+\usepackage{amsmath,amsthm, amssymb, latexsym}
+\usepackage{exscale}
+%\boldmath
+\usepackage{booktabs, array}
+%\usepackage{rotating} %sideways environment
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[orientation=portrait,size=a2,scale=1,grid]{beamerposter}
+\listfiles
+\graphicspath{{figures/}}
+% Display a grid to help align images
+%\beamertemplategridbackground[1cm]
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\tikzstyle{gate}            = [circle,fill=white,draw=black,minimum size=40pt,inner sep=0pt]
+\tikzstyle{gate2}           = [circle,fill=white,draw=black,minimum size=2cm,inner sep=0]
+\tikzstyle{observed}        = [fill=gray!50]
+\tikzstyle{semiobserved}    = [pattern color=white,pattern=north west lines]
+\tikzstyle{plate}           = [anchor=south west]
+\tikzstyle{wire}            = [draw,thick,->,line width=2pt]
+\tikzstyle{edgelabel}       = [draw=white,fill=white,circle,inner sep=0pt]
+\usepackage{verbatim}
+
+
+\def\erf{\mathrm{erf}}
+\def\N{{\cal N}}
+\def\I{{\mathbb I}}
+\def\sra{\shortrightarrow}
+\def\sla{\shortleftarrow}
+
+
+\title{\Large A New Bayesian Rating System for Team Competitions}
+\author[Nikolenko, Sirotkin]{Sergey Nikolenko${}^{1,2}$ and Alexander Sirotkin${}^{1,3}$}
+\institute[St. Petersburg Academic University]{\small ${}^{1}$St. Petersburg Academic University -- Nanotechnology Research and Education Centre of the RAS, 194021, St. Petersburg, Khlopina 8, korp.~3\\ ${}^{2}$Steklov Mathematical Institute, 191023, St. Petersburg, Russia, nab.~r.~Fontanka, 27\\ ${}^{3}$St. Petersburg Institute for Informatics and Automation of the RAS, 199178, St. Petersburg, 14 Line V.O., 39}
+\date[Aug. 31 , 2007]{Aug. 31 , 2007}
+
+% abbreviations
+\usepackage{xspace}
+\makeatletter
+\DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+\def\eg{{e.g}\onedot} \def\Eg{{E.g}\onedot}
+\def\ie{{i.e}\onedot} \def\Ie{{I.e}\onedot}
+\def\cf{{c.f}\onedot} \def\Cf{{C.f}\onedot}
+\def\etc{{etc}\onedot}
+\def\vs{{vs}\onedot}
+\def\wrt{w.r.t\onedot}
+\def\dof{d.o.f\onedot}
+\def\etal{{et al}\onedot}
+\makeatother
+
 \begin{document}
-\input{/etc/passwd}
+    \newcommand{\plate}[5]{{ \draw (#1,#2) -- (#3, #2) -- (#3, #4) -- (#1, #4) node[plate] {#5} -- cycle; }}
+    \usetikzlibrary{patterns}
+    \begin{tikzpicture}[line width=2pt, scale=1]
+      \begin{scope}
+        \node[gate2] (mu_0)     at ( 2,  -2) {$\mathbf{\mu_0}$};
+        \node[gate2] (Lambda_0) at ( 6,  -2) {$\beta_0$};
+        \node[gate2] (nu)       at (10,  -2) {$\nu$};
+        \node[gate2] (W_0)      at (14,  -2) {$\mathbf{W_0}$};
+
+        \node[gate2] (mu)       at ( 4,  -5) {$\mathbf{\mu} \vphantom{\Lambda}$};
+        \node[gate2] (Lambda)   at (12,  -5) {$\mathbf{\Lambda}$};
+
+        \draw[wire] (mu_0) -- (mu)
+        \draw[wire] (Lambda_0) -- (mu);
+        \draw[wire] (nu) -- (Lambda);
+        \draw[wire] (W_0) -- (Lambda);
+        \draw[wire] (Lambda) -- (mu);
+        
+        \plate {0.5}{-0.5}{15.5}{-6.5}{$m, s$};
+
+        \node[gate2, observed] (p_c)      at ( 8,  -9) {$\mathbf{p_c}$};
+        \draw[wire] (mu) -- (p_c);
+        \draw[wire] (Lambda) -- (p_c);
+        
+        \node[gate2, semiobserved] (s)    at ( 4, -12) {$s$};
+        \node[gate2] (p_s)                at ( 4, -15) {$\mathbf{p_s}$};
+        \draw[wire] (p_s) -- (s);
+        \draw[wire] (s) -- (p_c);
+        
+        \plate {0.5}{-7}{15.5}{-17}{$track$};
+        
+        \node[gate2] (m)                  at (12, -12) {$m$};
+        \node[gate2, observed] (p_m)      at (12, -15) {$\mathbf{p_m}$};
+        \draw[wire] (p_m) -- (m);
+        \draw[wire] (m) -- (p_c);
+        
+        \plate {6}{-7.5}{13.5}{-16.5}{$\tau$};
+      \end{scope}
+    \end{tikzpicture}
+
+    \begin{tikzpicture}[line width=2pt, scale=1]
+      \begin{scope}
+        \node[gate2] (mu_0)     at ( 2,  -2) {$\mathbf{\mu_0} \vphantom{\Lambda}$};
+        \node[gate2] (beta_0) at ( 6,  -2) {$\Lambda_0$};
+        \node[gate2] (nu)       at (10,  -2) {$\nu$};
+        \node[gate2] (W_0)      at (14,  -2) {$\mathbf{W_0}$};
+
+        \node[gate2] (mu)       at ( 4,  -5) {$\mathbf{\mu} \vphantom{\Lambda}$};
+        \node[gate2] (Lambda)   at (12,  -5) {$\mathbf{\Lambda}$};
+
+        \draw[wire] (mu_0) -- (mu);
+        \draw[wire] (beta_0) -- (mu);
+        \draw[wire] (nu) -- (Lambda);
+        \draw[wire] (W_0) -- (Lambda);
+        \draw[wire] (Lambda) -- (mu);
+        
+        \plate {0.5}{-0.5}{15.5}{-6.5}{$m, s$};
+
+        \node[gate2] (p_c)                at ( 8,  -9) {$\mathbf{p_c}$};
+        \draw[wire] (mu) -- (p_c);
+        \draw[wire] (Lambda) -- (p_c);
+        
+        \node[gate2] (s)                  at ( 4, -12) {$s$};
+        \node[gate2] (p_s)                at ( 4, -15) {$\mathbf{p_s}$};
+        \draw[wire] (p_s) -- (s);
+        \draw[wire] (s) -- (p_c);
+        
+        \plate {0.5}{-7}{15.5}{-17}{$track$};
+        
+        \node[gate2] (m)                  at (12, -12) {$m$};
+        \node[gate2, observed] (p_m)      at (12, -15) {$\mathbf{p_m}$};
+        \draw[wire] (p_m) -- (m);
+        \draw[wire] (m) -- (p_c);
+        
+        \plate {6}{-7.5}{13.5}{-16.5}{$\tau$};
+        
+        \node[gate2, observed] (g)        at ( 8, -15) {$g$};
+        % \node[gate2, observed] (g)        at (12, -9) {$g$};
+        \draw[wire] (p_c) -- (g);
+        
+        \node[gate2] (e_0)                at ( 6,   -18.5) {$\epsilon_0$};
+        \node[gate2] (e_1)                at (10,   -18.5) {$\epsilon_1$};
+        \node[gate2] (a_0)                at ( 6,   -21.5) {$\alpha_0$};
+        \node[gate2] (a_1)                at (10,   -21.5) {$\alpha_1$};
+        \node        (theta)              at ( 8,   -24.5)    {$\theta$};
+        \node[gate2] (k_0)                at ( 6, -24.5)  {$k_0$};
+        \node[gate2] (k_1)                at (10, -24.5)  {$k_1$};
+
+        % \node[gate2] (e_0)                at (15.5,  -7.75) {$\epsilon_0$};
+        % \node[gate2] (e_1)                at (15.5, -10.25) {$\epsilon_1$};
+        % \node[gate2] (a_0)                at (18.5,  -7.75) {$\alpha_0$};
+        % \node[gate2] (a_1)                at (18.5, -10.25) {$\alpha_1$};
+        % \node        (theta)              at (21.5,  -9)    {$\theta$};
+        % \node[gate2] (k_0)                at (21.5,  -6.5)  {$k_0$};
+        % \node[gate2] (k_1)                at (21.5, -11.5)  {$k_1$};
+
+        \draw[wire] (e_0) -- (g);
+        \draw[wire] (e_1) -- (g);
+        \draw[wire] (a_0) -- (e_0);
+        \draw[wire] (a_1) -- (e_1);
+        \draw[wire] (k_0) -- (a_0);
+        \draw[wire] (k_1) -- (a_1);
+        \draw[wire] (theta) -- (a_0);
+        \draw[wire] (theta) -- (a_1);
+      \end{scope}
+    \end{tikzpicture}
+
+
+    \begin{comment}
+    \begin{tikzpicture}[line width=2pt, scale=2]
+      \begin{scope}
+        \foreach \n/\t/\x/\y in {{x11/$\N(s_{{1},{1}};\mu_{1,1},\sigma^2_{1,1})$/1/9}, {x12/$\N(s_{1,2};\mu_{1,2},\sigma^2_{1,2})$/4/9},
+    							 {x21/$\N(s_{2,1};\mu_{2,1},\sigma^2_{2,1})$/7/9}, {x22/$\N(s_{3,1};\mu_{3,1},\sigma^2_{3,1})$/10/9},
+								 {x31/$\N(s_{4,1};\mu_{3,1},\sigma^2_{3,1})$/13/9}, {x32/$\N(s_{4,2};\mu_{4,2},\sigma^2_{4,2})$/16/9}}
+          \node[] (\n) at (\x,\y) {{\small \t}};
+        \foreach \n/\x/\y/\op/\pl/\pr in {{s11/1/8/s_{1,1}/x11/s11}, {s12/4/8/s_{1,2}/x12/s12}, {s21/7/8/s_{2,1}/x21/s21},
+										  {s22/10/8/s_{3,1}/x22/s22}, {s31/13/8/s_{4,1}/x31/s31}, {s32/16/8/s_{4,2}/x32/s32}} {
+          \node[gate] (\n) at (\x,\y) {$\op$};
+          \draw[wire] (\pl) -- (\pr);
+        }
+        \foreach \n/\x/\y/\op/\pl/\pr in {{y11/1/7/$\N(p_{{1},{1}};s_{1,1},\beta^2)$/y11/s11}, {y12/4/7/$\N(p_{1,2};s_{1,2},\beta^2)$/y12/s12}, {y21/7/7/$\N(p_{2,1};s_{2,1},\beta^2)$/y21/s21},
+										  {y22/10/7/$\N(p_{3,1};s_{3,1},\beta^2)$/y22/s22}, {y31/13/7/$\N(p_{4,1};s_{4,1},\beta^2)$/y31/s31}, {y32/16/7/$\N(p_{4,2};s_{4,2},\beta^2)$/y32/s32}} {
+          \node[] (\n) at (\x,\y) {{ \small \op}};
+          \draw[wire] (\pl) -- (\pr);
+        }		
+		\foreach \n/\x/\y/\op/\pl/\pr in {{p11/1/6/p_{1,1}/y11/p11}, {p12/4/6/p_{1,2}/y12/p12}, {p21/7/6/p_{2,1}/y21/p21},
+										  {p31/10/6/p_{3,1}/y22/p31}, {p41/13/6/p_{4,1}/y31/p41}, {p42/16/6/p_{4,2}/y32/p42}} {
+          \node[gate] (\n) at (\x,\y) {$\op$};
+          \draw[wire] (\pl) -- (\pr);
+        }
+		\foreach \n/\x/\y/\op/\pl/\pr/\pq in {{z1/2.5/5/$\I(t_1=p_{1,1}+p_{1,2})$/z1/p11/p12},
+											  {z4/14.5/5/$\I(t_3=p_{3,1}+p_{3,2})$/z4/p41/p42}} {
+          \node[] (\n) at (\x,\y) {{\small \op}};
+          \draw[wire] (\pl) -- (\pr); \draw[wire] (\pl) -- (\pq);
+        }
+		\foreach \n/\x/\y/\op/\pl/\pr in {{z2/7/5/$\I(t_1=p_{2,1})$/z2/p21},
+											  {z3/10/5/$\I(t_3=p_{3,1})$/z3/p31}} {
+          \node[] (\n) at (\x,\y) {{\small \op}};
+          \draw[wire] (\pl) -- (\pr);
+        }
+		\foreach \n/\x/\y/\op/\pl/\pr in {{t1/2.5/4/t_1/z1/t1}, {t2/7/4/t_2/z2/t2}, {t3/10/4/t_3/z3/t3}, {t4/14.5/4/t_4/z4/t4}} {
+          \node[gate] (\n) at (\x,\y) {$\op$};
+          \draw[wire] (\pl) -- (\pr);
+        }
+		\foreach \n/\x/\y/\op/\pl/\pr/\pq/\nn/\yy/\opp/\nnn/\yyy/\oppp in {{u1/4.75/3/$\I(d_1=t_1-t_2)$/u1/t1/t2/d1/2/d_1/dd1/1/$\I(d_1>\varepsilon)$},
+																		   {u2/8.5/3/$\I(d_2=t_2-t_3)$/u2/t2/t3/d2/2/d_2/dd2/1/$\I(|d_2|\le\varepsilon)$},
+																		   {u3/12.25/3/$\I(d_3=t_3-t_4)$/u3/t3/t4/d3/2/d_3/dd3/1/$\I(d_3>\varepsilon)$}} {
+          \node[] (\n) at (\x,\y) {\op};
+          \draw[wire] (\pl) -- (\pr); \draw[wire] (\pl) -- (\pq);
+		  \node[gate] (\nn) at (\x,\yy) {$\opp$};
+          \draw[wire] (\n) -- (\nn);
+		  \node[] (\nnn) at (\x,\yyy) {\oppp};
+		  \draw[wire] (\nnn) -- (\nn);
+        }
+      \end{scope} 
+    \end{tikzpicture}
+    \end{comment}
+
 \end{document}
+
