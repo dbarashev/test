@@ -28,7 +28,7 @@
         \node[gate2] (W_0)      at (14,  -2) {$\mathbf{W_0}$};
 
         \node[gate2] (mu)       at ( 4,  -5) {$\mathbf{\mu} \vphantom{\Lambda}$};
-        \node[gate2] (Lambda)   at (12,  -5) {$\mathbf{\Lambda}$};
+        \node[gate2] (Lambda)   at (12,  -5) {$\mathbf{\Lambda}\Delta$};
 
         \draw[wire] (mu_0) -- (mu)
         \draw[wire] (Lambda_0) -- (mu);
@@ -36,7 +36,6 @@
         \draw[wire] (W_0) -- (Lambda);
         \draw[wire] (Lambda) -- (mu);
         
-        \plate {0.5}{-0.5}{15.5}{-6.5}{$m, s$};
 
         \node[gate2, observed] (p_c)      at ( 8,  -9) {$\mathbf{p_c}$};
         \draw[wire] (mu) -- (p_c);
